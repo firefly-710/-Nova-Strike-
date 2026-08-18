@@ -32,6 +32,20 @@
 
 **本地运行**：直接双击 `index.html`（或浏览器打开它）。
 
+**在线部署**：本游戏是纯静态页面，可托管到任意静态服务：
+
+- GitHub Pages / Netlify / Vercel（免费）
+- 阿里云 OSS（开启「静态网站托管」，默认首页设为 `index.html`）或腾讯云 COS
+
+上传以下内容即可：
+
+```
+index.html
+game.js
+style.css
+assets/          （图片与精灵图）
+```
+
 > `assets/` 下的 `design2.png`、`fighter_design.png`、`sprites_contact_qa.png`
 > 是设计参考图，游戏不加载，可删除以减小体积。
 
@@ -39,3 +53,8 @@
 
 - 原生 HTML / CSS / JavaScript，单文件 IIFE 架构，无构建步骤、无运行时依赖。
 - 进度（天赋 / 皮肤 / 成就 / 每日 / 兑换）保存在浏览器 `localStorage`。
+
+## 开源许可与声明
+
+- 本项目以 [MIT 许可证](LICENSE) 发布，版权人 `firefly-710 (GitHub: @firefly-710)`。
+- 部分美术素材与代码由 AI 辅助生成（并经人工审查修改），详见 [NOTICE.md](NOTICE.md)。
