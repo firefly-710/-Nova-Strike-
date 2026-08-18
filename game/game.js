@@ -6749,7 +6749,7 @@
       bg.onerror = () => {
         battleBackgroundFailed = true;
       };
-      bg.src = 'assets/battle.png';
+      bg.src = 'assets/battle.webp';
     }
   }
 
