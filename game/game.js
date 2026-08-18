@@ -190,9 +190,9 @@
   const RICOCHET_CORE_SPEED = 520;      // 弹射后弹速
   // 第二批核心质变（形态型，2026-08-17）
   const BEAM_TICK = 0.12;               // 光束核心：伤害 tick 间隔（秒）
-  const BEAM_BASE_HALF_WIDTH = 30;      // 光束半宽基数（随弹列增宽）
+  const BEAM_BASE_HALF_WIDTH = 26;      // 光束半宽基数（随弹列增宽；与收窄后的视觉宽度对齐）
   const BEAM_ROWS_WIDTH = 8;            // 每排弹列额外半宽
-  const BEAM_DAMAGE_MUL = 1.3;          // 光束 tick 伤害 = 主炮伤害 × 此值（需扫射对线，略高于单发）
+  const BEAM_DAMAGE_MUL = 1.2;          // 光束 tick 伤害 = 主炮伤害 × 此值（持续贯穿光束，略高于单发主炮）
   const MIRROR_COUNT = 2;               // 分身核心：镜像数量
   const MIRROR_DAMAGE_SHARE = 0.3;      // 每个镜像伤害 = 主炮伤害 × 此值
   const MIRROR_OFFSET = 46;             // 镜像与机体横向间距
@@ -3097,13 +3097,9 @@
         if (p.overloadTimer === 0) markHud();
       }
     }
-    // 光束核心：主炮被激光替代，按 tick 结算贯穿伤害
+    // 光束核心：主炮被持续贯穿激光束替代——每帧结算贯穿伤害（碰到即受伤，光束实时跟随玩家）
     if (p.core === 'beam') {
-      p.beamTick -= dt;
-      if (p.beamTick <= 0) {
-        p.beamTick = BEAM_TICK;
-        tickBeamCore();
-      }
+      updateBeamCore(dt);
     }
   }
 
@@ -3341,28 +3337,59 @@
     }
   }
 
-  // 光束核心：主炮被持续贯穿激光束替代——每 BEAM_TICK 秒对光束列内所有敌人结算一次伤害
-  function tickBeamCore() {
+  // 光束核心：主炮被持续贯穿激光束替代——每帧对光束列内所有敌人结算连续伤害（碰到即受伤），
+  // 总 DPS 与原 tick 模型一致；暴击判定保持每 BEAM_TICK 一次的节奏，不额外消耗 Math.random。
+  function updateBeamCore(dt) {
     const p = state.player;
     const baseDamage = p.damage + (p.baseDamageBonus || 0);
     const halfWidth = BEAM_BASE_HALF_WIDTH + (p.rows || 1) * BEAM_ROWS_WIDTH;
-    let damage = Math.max(1, Math.round(baseDamage * BEAM_DAMAGE_MUL * (p.overloadTimer > 0 ? OVERLOAD_DMG_MUL : 1)));
-    if (Math.random() < p.critChance) {
-      damage = Math.round(damage * p.critDamage * (p.critBonusMul || 1));
+    const overloadMul = p.overloadTimer > 0 ? OVERLOAD_DMG_MUL : 1;
+    // 暴击节奏：每 BEAM_TICK 判定一次，持续到下一次判定
+    p.beamTick -= dt;
+    let tickEdge = false;
+    if (p.beamTick <= 0) {
+      p.beamTick = BEAM_TICK;
+      p.beamCrit = Math.random() < p.critChance;
+      tickEdge = true;
     }
+    const crit = !!p.beamCrit;
+    let damage = baseDamage * BEAM_DAMAGE_MUL * overloadMul;
+    if (crit) damage *= p.critDamage * (p.critBonusMul || 1);
+    const frameDamage = damage * (dt / BEAM_TICK);
     let topHit = p.y;
+    let hitAny = false;
+    let hitThisTick = false;
     for (let i = state.enemies.length - 1; i >= 0; i--) {
       const enemy = state.enemies[i];
       if (enemy.y > p.y) continue;
       if (Math.abs(enemy.x - p.x) > enemy.r + halfWidth) continue;
-      enemy.hp -= damage;
-      state.damageDealt += damage;
-      enemy.hitFlash = 0.09;
-      spawnParticles(enemy.x, enemy.y, enemy.color, 2, 110);
+      enemy.hp -= frameDamage;
+      state.damageDealt += frameDamage;
+      enemy.hitFlash = 0.06;
       topHit = Math.min(topHit, enemy.y);
+      hitAny = true;
+      // 命中反馈按 BEAM_TICK 节流：伤害数字显示该窗口累积值；粒子全确定性（不消耗 Math.random）
+      enemy.beamDmgAcc = (enemy.beamDmgAcc || 0) + frameDamage;
+      if (enemy.beamFx === undefined) enemy.beamFx = BEAM_TICK * 0.5; // 首次进入错开半拍，避免齐射
+      enemy.beamFx -= dt;
+      if (enemy.beamFx <= 0) {
+        enemy.beamFx = BEAM_TICK;
+        if (enemy.beamDmgAcc >= 1) {
+          addDamageTextDet(Math.round(enemy.beamDmgAcc), enemy.x, enemy.y - enemy.r - 8, crit);
+          enemy.beamDmgAcc = 0;
+        }
+        burstParticlesDet(enemy.x, enemy.y - enemy.r * 0.35, '#aef8ff', 4, 170, 0.42, 2.2, i * 11 + 5);
+        burstParticlesDet(enemy.x, enemy.y, enemy.color, 2, 120, 0.5, 2.6, i * 17 + 9);
+        if (crit) hitThisTick = true;
+      }
       if (enemy.hp <= 0) killEnemy(enemy, i);
     }
-    state.beamVisual = { x: p.x, y0: p.y - 26, y1: Math.max(0, topHit - 8) };
+    if (tickEdge && hitThisTick && crit) {
+      state.shake = Math.max(state.shake, 3);
+      playSound('hit');
+    }
+    // 每帧刷新光束几何：实时跟随玩家位置；无目标时贯穿至屏幕顶端（持续发射观感）
+    state.beamVisual = { x: p.x, y0: p.y - 26, y1: Math.max(0, topHit < p.y ? topHit - 8 : 2) };
   }
 
   // 分身核心：镜像跟随机体并带轻微摆动
@@ -4087,6 +4114,18 @@
 
   function addDamageText(damage, x, y, crit) {
     addText(`${Math.round(damage)}`, x + randRange(-6, 6), y + randRange(-4, 2), crit ? '#ffd166' : '#fff4c2', {
+      size: crit ? 30 : 22,
+      weight: crit ? 900 : 800,
+      shadow: null,
+      outline: true,
+      rise: crit ? 78 : 62,
+      life: crit ? 1.35 : 1.2,
+    });
+  }
+
+  // 确定性伤害数字（无随机抖动）：用于光束等高频 tick 伤害，避免消耗 Math.random 影响测试种子
+  function addDamageTextDet(damage, x, y, crit) {
+    addText(`${Math.round(damage)}`, x, y, crit ? '#ffd166' : '#fff4c2', {
       size: crit ? 30 : 22,
       weight: crit ? 900 : 800,
       shadow: null,
@@ -5761,7 +5800,11 @@
     const droneCount = Math.min(MAX_DRONES, p.droneCount || 0);
     const droneShare = (DRONE_DAMAGE_SHARE[droneCount] || 0) * (p.droneShareMul || 1);
     const droneEquivalentRows = droneCount * droneShare;
-    const dps = Math.round((p.rows + droneEquivalentRows) * expectedDamage / p.fireInterval);
+    // 光束核心下主炮被持续光束替代：DPS 按光束实际结算公式显示（伤害×1.2/0.12s + 浮游炮），
+    // 而非主炮射速模型；排数在光束下只增宽判定列，不乘算单目标 DPS
+    const dps = p.core === 'beam'
+      ? Math.round((baseDamage * BEAM_DAMAGE_MUL * (p.overloadTimer > 0 ? OVERLOAD_DMG_MUL : 1) * (1 + p.critChance * (effectiveCritDamage - 1))) / BEAM_TICK + droneEquivalentRows * expectedDamage / p.fireInterval)
+      : Math.round((p.rows + droneEquivalentRows) * expectedDamage / p.fireInterval);
     const healingEfficiency = (state.affix ? state.affix.healingMul : 1) * endlessHealingMultiplier(state);
     const activeSpecial = SPECIAL_ORDER.filter((type) => p.special[type] > 0);
     const specialIcons = { slow: '#i-wind', burn: '#i-zap', blast: '#i-crosshair', homing: '#i-target' };
@@ -5793,7 +5836,7 @@
     row('#i-layers', '等级', p.level, [S('其他', '击杀经验', 1)]);
 
     group('火力');
-    row('#i-crosshair', '综合 DPS', dps, [S('基础', `伤害 ${baseDamage} × 射速 ${(1 / p.fireInterval).toFixed(1)}/s`), S('其他', `暴击期望 ×${(1 + p.critChance * (effectiveCritDamage - 1)).toFixed(2)}`), S('其他', `排数 ×${p.rows}${droneCount > 0 ? ` + 浮游炮 ×${droneEquivalentRows.toFixed(2)}` : ''}`)]);
+    row('#i-crosshair', '综合 DPS', dps, [S('基础', p.core === 'beam' ? `光束 ${Math.round(baseDamage * BEAM_DAMAGE_MUL)} × ${(1 / BEAM_TICK).toFixed(1)}/s` : `伤害 ${baseDamage} × 射速 ${(1 / p.fireInterval).toFixed(1)}/s`), S('其他', `暴击期望 ×${(1 + p.critChance * (effectiveCritDamage - 1)).toFixed(2)}`), S('其他', `${p.core === 'beam' ? '光束宽度' : '排数'} ×${p.rows}${droneCount > 0 ? ` + 浮游炮 ×${droneEquivalentRows.toFixed(2)}` : ''}`)]);
     row('#i-crosshair', '主炮伤害', baseDamage, [
       S('基础', '12'),
       ...(build.damageMul !== 1 ? [S('流派', `×${build.damageMul}`)] : []),
@@ -7370,31 +7413,87 @@
     if (!p || p.core !== 'beam' || !state.beamVisual) return;
     const v = state.beamVisual;
     const halfW = BEAM_BASE_HALF_WIDTH + (p.rows || 1) * BEAM_ROWS_WIDTH;
+    const t = state.elapsed;
+    const len = Math.max(1, v.y0 - v.y1);
+    const pulse = 0.86 + 0.14 * Math.sin(t * 26);         // 光束整体脉动
+    const shimmer = 0.72 + 0.28 * Math.sin(t * 61 + 1.7); // 核心亮度闪烁
+    const beamPath = (wTop, wBot) => {
+      ctx.beginPath();
+      ctx.moveTo(v.x - wTop, v.y0);
+      ctx.lineTo(v.x + wTop, v.y0);
+      ctx.lineTo(v.x + wBot, v.y1);
+      ctx.lineTo(v.x - wBot, v.y1);
+      ctx.closePath();
+    };
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
-    // 外辉光（青）
-    const glow = ctx.createLinearGradient(0, v.y1, 0, v.y0);
-    glow.addColorStop(0, 'rgba(84, 215, 255, 0.35)');
-    glow.addColorStop(1, 'rgba(84, 215, 255, 0.85)');
-    ctx.globalAlpha = 0.5;
-    ctx.fillStyle = glow;
-    ctx.beginPath();
-    ctx.moveTo(v.x - halfW - 9, v.y0);
-    ctx.lineTo(v.x + halfW + 9, v.y0);
-    ctx.lineTo(v.x + halfW + 3, v.y1);
-    ctx.lineTo(v.x - halfW - 3, v.y1);
-    ctx.closePath();
+
+    // 1) 大范围外辉光（青蓝，最宽最淡）
+    const outerGlow = ctx.createLinearGradient(0, v.y1, 0, v.y0);
+    outerGlow.addColorStop(0, 'rgba(60, 190, 255, 0.26)');
+    outerGlow.addColorStop(1, 'rgba(60, 190, 255, 0.7)');
+    ctx.globalAlpha = 0.55 * pulse;
+    ctx.fillStyle = outerGlow;
+    beamPath(halfW * 1.5, halfW * 0.9);
     ctx.fill();
-    // 核心光束（白亮）
-    ctx.globalAlpha = 0.92;
+
+    // 2) 主辉光（青，光束主体）
+    const midGlow = ctx.createLinearGradient(0, v.y1, 0, v.y0);
+    midGlow.addColorStop(0, 'rgba(84, 215, 255, 0.5)');
+    midGlow.addColorStop(1, 'rgba(150, 238, 255, 0.95)');
+    ctx.globalAlpha = 0.8 * pulse;
+    ctx.fillStyle = midGlow;
+    beamPath(halfW * 0.8, halfW * 0.45);
+    ctx.fill();
+
+    // 3) 能量流动条纹：沿光束向尖端流动的亮线
+    ctx.globalAlpha = 0.55 * shimmer;
+    ctx.fillStyle = '#dffcff';
+    for (let i = 0; i < 3; i++) {
+      const offset = (t * 340 + i * (len / 3)) % len;
+      const fy = v.y0 - offset;
+      const w = halfW * (0.4 - 0.13 * i);
+      ctx.beginPath();
+      ctx.moveTo(v.x - w, fy);
+      ctx.lineTo(v.x + w, fy);
+      ctx.lineTo(v.x + w * 0.78, fy + 15);
+      ctx.lineTo(v.x - w * 0.78, fy + 15);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // 4) 核心光束（白亮热核）+ 超亮细芯
+    ctx.globalAlpha = 0.92 * shimmer;
     ctx.fillStyle = '#eafcff';
-    ctx.beginPath();
-    ctx.moveTo(v.x - halfW * 0.35, v.y0);
-    ctx.lineTo(v.x + halfW * 0.35, v.y0);
-    ctx.lineTo(v.x + halfW * 0.18, v.y1);
-    ctx.lineTo(v.x - halfW * 0.18, v.y1);
-    ctx.closePath();
+    beamPath(halfW * 0.28, halfW * 0.14);
     ctx.fill();
+    ctx.globalAlpha = 0.75 * shimmer;
+    ctx.fillStyle = '#ffffff';
+    beamPath(halfW * 0.1, halfW * 0.05);
+    ctx.fill();
+
+    // 5) 出光口辉光（光源处椭圆光晕）
+    const muzzle = ctx.createRadialGradient(v.x, v.y0, 0, v.x, v.y0, halfW * 1.8);
+    muzzle.addColorStop(0, 'rgba(230, 252, 255, 0.95)');
+    muzzle.addColorStop(0.35, 'rgba(120, 222, 255, 0.45)');
+    muzzle.addColorStop(1, 'rgba(120, 222, 255, 0)');
+    ctx.globalAlpha = 0.85 * pulse;
+    ctx.fillStyle = muzzle;
+    ctx.beginPath();
+    ctx.ellipse(v.x, v.y0, halfW * 1.8, halfW * 0.75, 0, 0, TAU);
+    ctx.fill();
+
+    // 6) 尖端命中脉冲（光束尽头的光点）
+    const tip = ctx.createRadialGradient(v.x, v.y1, 0, v.x, v.y1, halfW * 1.3);
+    tip.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
+    tip.addColorStop(0.4, 'rgba(140, 240, 255, 0.42)');
+    tip.addColorStop(1, 'rgba(140, 240, 255, 0)');
+    ctx.globalAlpha = 0.45 + 0.35 * Math.sin(t * 34);
+    ctx.fillStyle = tip;
+    ctx.beginPath();
+    ctx.arc(v.x, v.y1, halfW * 1.3, 0, TAU);
+    ctx.fill();
+
     ctx.restore();
   }
 
