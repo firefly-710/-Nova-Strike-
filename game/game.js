@@ -102,6 +102,8 @@
     bossLabel: document.querySelector('.boss-label'),
     bossFill: document.getElementById('bossFill'),
     bossValue: document.getElementById('bossValue'),
+    gameHud: document.getElementById('gameHud'),
+    hudCollapseBtn: document.getElementById('hudCollapseBtn'),
   };
 
   const BASE_DAMAGE_PER_LEVEL = 2;
@@ -888,6 +890,10 @@
   let pointerActive = false;
   let pointerX = W / 2;
   let pointerY = H * 0.8;
+  let hudDimActive = false;   // HUD 拖动淡出状态（移动端拖动移动时让出视野）
+  let hudCollapsed = false;   // HUD 手动收起状态（顶部按钮切换）
+  let skinConfirmCard = null; // 皮肤购买二次确认：当前武装的卡片
+  let skinConfirmTimer = null;
   const selectedAffixLevels = Object.create(null);
   let lastTime = performance.now();
   let lastFrameTime = 0;
@@ -1781,6 +1787,7 @@
   }
 
   function renderSkinMenu() {
+    resetSkinConfirm();
     els.rewardPointsValue.textContent = meta.rewardPoints;
     els.skinList.replaceChildren();
     for (const skin of PLAYER_SKINS) {
@@ -1815,9 +1822,45 @@
       card.append(preview, main);
 
       card.disabled = !owned && meta.rewardPoints < skin.price;
-      card.addEventListener('click', () => buyOrEquipSkin(skin.id));
+      card.addEventListener('click', () => onSkinCardClick(card, skin));
       els.skinList.appendChild(card);
     }
+  }
+
+  // 皮肤购买二次确认：未拥有的皮肤首次点击进入"确认购买"状态，再次点击才扣积分；
+  // 只切换 .skin-action 文本与 .confirming 样式，不触碰 canvas 预览（innerHTML 会丢失预览图）
+  function resetSkinConfirm() {
+    if (skinConfirmTimer) { clearTimeout(skinConfirmTimer); skinConfirmTimer = null; }
+    if (skinConfirmCard) {
+      const card = skinConfirmCard;
+      const action = card.querySelector('.skin-action');
+      if (action && action.dataset.orig != null) action.textContent = action.dataset.orig;
+      card.classList.remove('confirming');
+      skinConfirmCard = null;
+    }
+  }
+
+  function onSkinCardClick(card, skin) {
+    const owned = meta.ownedSkins.includes(skin.id);
+    if (owned) {
+      buyOrEquipSkin(skin.id);
+      return;
+    }
+    if (meta.rewardPoints < skin.price) return;   // 积分不足：不响应（与软禁用一致）
+    if (skinConfirmCard === card) {                // 再次点击：确认购买
+      resetSkinConfirm();
+      buyOrEquipSkin(skin.id);
+      return;
+    }
+    resetSkinConfirm();                            // 换卡或首次点击：武装当前卡片
+    skinConfirmCard = card;
+    card.classList.add('confirming');
+    const action = card.querySelector('.skin-action');
+    if (action) {
+      action.dataset.orig = action.textContent;
+      action.textContent = '确认购买？';
+    }
+    skinConfirmTimer = setTimeout(resetSkinConfirm, 2800);
   }
 
   function buyOrEquipSkin(id) {
@@ -4800,6 +4843,11 @@
     if (displayedSecond !== state.displayedSecond) {
       state.displayedSecond = displayedSecond;
       els.timeValue.textContent = formatRunTime(displayedSecond);
+    }
+    // 移动端 HUD 拖动淡出：拖动移动（pointerActive）时让出顶部视野，状态翻转时才写 DOM
+    if (els.gameHud && hudDimActive !== pointerActive) {
+      hudDimActive = pointerActive;
+      els.gameHud.classList.toggle('dim', pointerActive);
     }
     updateStars(dt);
     updatePlayer(dt);
@@ -8208,6 +8256,13 @@
   els.battleSetupBackBtn.addEventListener('click', openMainMenu);
   els.battleSetupSkipBtn.addEventListener('click', skipBattleSetup);
   els.battleSetupStartBtn.addEventListener('click', startGame);
+  // HUD 收起/展开（顶部中央小按钮，手动隐藏左右面板让出视野）
+  els.hudCollapseBtn.addEventListener('click', () => {
+    hudCollapsed = !hudCollapsed;
+    els.gameHud.classList.toggle('collapsed', hudCollapsed);
+    els.hudCollapseBtn.setAttribute('aria-pressed', String(hudCollapsed));
+    els.hudCollapseBtn.title = hudCollapsed ? '展开 HUD' : '收起 HUD';
+  });
   // 一键满词缀 / 一键取消：全部词缀拉到 Lv3，再点全部重置
   els.affixAllBtn.addEventListener('click', () => {
     if (allAffixesMaxed()) {

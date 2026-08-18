@@ -767,6 +767,27 @@ button {
     0 0 24px rgba(255, 200, 87, 0.16);
 }
 
+/* 皮肤购买二次确认：红色警示 + 脉动 */
+.skin-card.confirming {
+  border-color: var(--red) !important;
+  background: linear-gradient(180deg, rgba(60, 14, 24, 0.95), rgba(20, 14, 24, 0.9)) !important;
+  animation: skinConfirmPulse 0.9s ease-in-out infinite;
+}
+
+.skin-card.confirming .skin-action {
+  color: #ffd7dc !important;
+  font-weight: 900;
+}
+
+@keyframes skinConfirmPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 1px rgba(255, 94, 108, 0.35), 0 0 22px rgba(255, 94, 108, 0.22);
+  }
+  50% {
+    box-shadow: 0 0 0 1px rgba(255, 94, 108, 0.7), 0 0 34px rgba(255, 94, 108, 0.4);
+  }
+}
+
 .skin-card:disabled {
   opacity: 0.62;
   cursor: default;
@@ -1385,6 +1406,7 @@ kbd {
   border: 1px solid rgba(84, 215, 255, 0.18);
   border-radius: 6px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+  transition: opacity 0.18s ease;
 }
 
 .hud-left {
@@ -1396,6 +1418,41 @@ kbd {
 .hud-right {
   right: 10px;
   align-items: flex-end;
+}
+
+/* HUD 收起按钮 + 收起状态（2026-08-18：移动端让出视野） */
+.hud-collapse-btn {
+  position: absolute;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 6;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid rgba(84, 215, 255, 0.35);
+  background: rgba(5, 12, 20, 0.5);
+  color: var(--green);
+  cursor: pointer;
+  opacity: 0.55;
+  transition: opacity 0.18s ease;
+  pointer-events: auto;
+}
+.hud-collapse-btn:hover { opacity: 1; }
+.hud-collapse-btn .icon { width: 14px; height: 14px; }
+.hud-collapse-btn[aria-pressed='true'] {
+  border-color: rgba(255, 200, 87, 0.55);
+  color: var(--amber, #ffc857);
+  opacity: 0.8;
+}
+.game-hud.collapsed .hud-left,
+.game-hud.collapsed .hud-right {
+  opacity: 0.04;
+  pointer-events: none;
 }
 
 .hud-time {
@@ -2381,7 +2438,16 @@ kbd {
     height: 22px;
   }
 
-  
+  /* 拖动淡出：拖动移动时左右面板让出视野（收起状态优先） */
+  .game-hud.dim .hud-left,
+  .game-hud.dim .hud-right {
+    opacity: 0.12;
+  }
+  .game-hud.collapsed .hud-left,
+  .game-hud.collapsed .hud-right {
+    opacity: 0.04;
+    pointer-events: none;
+  }
 }
 
 @media (max-width: 760px) {
@@ -2398,13 +2464,26 @@ kbd {
 
   .hud-left {
     left: 8px;
-    width: min(280px, calc(100% - 16px));
-    max-width: calc(100% - 16px);
+    width: min(230px, 60%);
+    max-width: min(230px, 60%);
   }
 
   .hud-right {
     right: 8px;
   }
+
+  /* 幽灵面板：半透明背景 + 紧凑排版，减少顶部遮挡（配合拖动淡出） */
+  .hud-left,
+  .hud-right {
+    background: linear-gradient(180deg, rgba(5, 12, 20, 0.38), rgba(5, 12, 20, 0.26));
+    border-color: rgba(84, 215, 255, 0.1);
+    box-shadow: none;
+    gap: 4px;
+  }
+  .hud-time { font-size: 10px; }
+  .hud-stats strong,
+  .hud-label { font-size: 11px; }
+  .hud-collapse-btn { top: 56px; width: 24px; height: 24px; }
 
   .hud-loadout {
     max-width: 100%;
@@ -2489,6 +2568,7 @@ kbd {
     padding: 14px;
     border-radius: 14px;
     background: rgba(6, 12, 22, 0.46);
+    gap: 10px;
     overflow-y: auto;
   }
 
@@ -2519,17 +2599,31 @@ kbd {
   }
 
   .skin-list {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    display: flex;
     gap: 8px;
-    overflow: visible;
-    padding: 0;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    padding: 2px 2px 6px;
   }
 
   .skin-card {
-    flex: none;
-    width: 100%;
-    min-height: 112px;
+    flex: 0 0 118px;
+    min-height: 96px;
+    gap: 3px;
+    padding: 8px 6px;
+  }
+
+  .skin-card .skin-main > span:not(.skin-action) {
+    display: none;
+  }
+
+  .skin-card .skin-main strong {
+    font-size: 11px;
+  }
+
+  .skin-card .skin-preview {
+    width: 52px;
+    height: 44px;
   }
 
   .meta-list {
@@ -2667,10 +2761,11 @@ kbd {
     margin: 16px auto;
     overflow-y: auto;
     grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto auto auto;
+    grid-template-rows: auto auto auto auto auto auto;
     grid-template-areas:
       "hero"
       "start"
+      "daily"
       "currencies"
       "talent"
       "skins";
@@ -4339,16 +4434,30 @@ button:focus-visible {
   }
 
   .menu-tools-row {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(3, 1fr);
     gap: 8px;
   }
 
   .menu-tools-row .tutorial-entry {
-    grid-column: 1 / -1;
+    grid-column: auto;
   }
 
   .menu-tools-row .talent-tree-open-btn {
-    min-height: 44px;
+    min-height: 62px;
+    flex-direction: column;
+    justify-content: center;
+    gap: 3px;
+    padding: 6px 4px;
+  }
+
+  .menu-tools-row .talent-tree-open-btn .icon {
+    width: 26px;
+    height: 26px;
+  }
+
+  .menu-tools-row .talent-tree-open-btn span {
+    font-size: 12px;
+    line-height: 1.1;
   }
 
   .menu-tools-row .talent-tree-open-btn::after {
