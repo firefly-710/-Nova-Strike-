@@ -1,0 +1,576 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>星穹雷霆</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <svg class="icons" aria-hidden="true">
+    <symbol id="i-up" viewBox="0 0 24 24">
+      <path d="M12 19V5" />
+      <path d="m5 12 7-7 7 7" />
+    </symbol>
+    <symbol id="i-down" viewBox="0 0 24 24">
+      <path d="M12 5v14" />
+      <path d="m19 12-7 7-7-7" />
+    </symbol>
+    <symbol id="i-left" viewBox="0 0 24 24">
+      <path d="m12 19-7-7 7-7" />
+      <path d="M19 12H5" />
+    </symbol>
+    <symbol id="i-right" viewBox="0 0 24 24">
+      <path d="m12 5 7 7-7 7" />
+      <path d="M5 12h14" />
+    </symbol>
+    <symbol id="i-flask" viewBox="0 0 24 24">
+      <path d="M10 2v7.527a2 2 0 0 1-.211.896L4.72 20.55a1 1 0 0 0 .9 1.45h12.76a1 1 0 0 0 .9-1.45l-5.069-10.127A2 2 0 0 1 14 9.527V2" />
+      <path d="M8.5 2h7" />
+      <path d="M7 16h10" />
+    </symbol>
+    <symbol id="i-volume" viewBox="0 0 24 24">
+      <path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z" />
+      <path d="M16 9a5 5 0 0 1 0 6" />
+      <path d="M19.364 18.364a9 9 0 0 0 0-12.728" />
+    </symbol>
+    <symbol id="i-muted" viewBox="0 0 24 24">
+      <path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z" />
+      <line x1="22" x2="16" y1="9" y2="15" />
+      <line x1="16" x2="22" y1="9" y2="15" />
+    </symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24">
+      <rect x="14" y="4" width="4" height="16" rx="1" />
+      <rect x="6" y="4" width="4" height="16" rx="1" />
+    </symbol>
+    <symbol id="i-play" viewBox="0 0 24 24">
+      <polygon points="6 3 20 12 6 21 6 3" />
+    </symbol>
+    <symbol id="i-check" viewBox="0 0 24 24">
+      <path d="m5 12 4 4L19 6" />
+    </symbol>
+    <symbol id="i-zap" viewBox="0 0 24 24">
+      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+    </symbol>
+    <symbol id="i-target" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="10" />
+      <circle cx="12" cy="12" r="6" />
+      <circle cx="12" cy="12" r="2" />
+    </symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24">
+      <path d="M5 12h14" />
+      <path d="M12 5v14" />
+    </symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24">
+      <path d="M12 2 2 7l10 5 10-5-10-5Z" />
+      <path d="m2 17 10 5 10-5" />
+      <path d="m2 12 10 5 10-5" />
+    </symbol>
+    <symbol id="i-rocket" viewBox="0 0 24 24">
+      <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" />
+      <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" />
+      <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
+      <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
+    </symbol>
+    <symbol id="i-crosshair" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="10" />
+      <line x1="22" x2="18" y1="12" y2="12" />
+      <line x1="6" x2="2" y1="12" y2="12" />
+      <line x1="12" x2="12" y1="6" y2="2" />
+      <line x1="12" x2="12" y1="22" y2="18" />
+    </symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24">
+      <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
+    </symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24">
+      <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+    </symbol>
+    <symbol id="i-sparkles" viewBox="0 0 24 24">
+      <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z" />
+    </symbol>
+    <symbol id="i-wind" viewBox="0 0 24 24">
+      <path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2" />
+      <path d="M9.6 4.6A2 2 0 1 1 11 8H2" />
+      <path d="M12.6 19.4A2 2 0 1 0 14 16H2" />
+    </symbol>
+    <symbol id="i-bomb" viewBox="0 0 24 24">
+      <circle cx="9.2" cy="13.2" r="7.2" />
+      <path d="M14.8 8.2 22 1" />
+      <path d="M18 4l2 2" />
+    </symbol>
+    <symbol id="i-star" viewBox="0 0 24 24">
+      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+    </symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24">
+      <path d="M21 12a9 9 0 1 1-2.64-6.36" />
+      <path d="M21 3v6h-6" />
+    </symbol>
+    <symbol id="i-book" viewBox="0 0 24 24">
+      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+      <path d="M9 7h7" />
+      <path d="M9 11h5" />
+    </symbol>
+    <symbol id="i-help" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="10" />
+      <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+      <path d="M12 17h.01" />
+    </symbol>
+  </svg>
+
+  <main id="shell" class="shell menu-mode">
+    <section id="mainMenu" class="main-menu hidden" role="dialog" aria-modal="true">
+      <div class="menu-panel">
+        <div class="menu-hero">
+          <span class="menu-kicker">NOVA STRIKE</span>
+          <h2>星穹雷霆</h2>
+        </div>
+        <div class="menu-currencies">
+          <div class="menu-points">科技点 <strong id="metaPointsValue">0</strong></div>
+          <div class="menu-points reward-points">奖励积分 <strong id="rewardPointsValue">0</strong></div>
+        </div>
+        <div class="menu-tools-row">
+          <div class="talent-tree-entry">
+            <button id="talentTreeBtn" class="action-btn talent-tree-open-btn" type="button">
+              <svg class="icon"><use href="#i-sparkles"></use></svg>
+              <span>天赋树</span>
+            </button>
+          </div>
+          <div class="talent-tree-entry encyclopedia-entry">
+            <button id="encyclopediaBtn" class="action-btn talent-tree-open-btn encyclopedia-open-btn" type="button">
+              <svg class="icon"><use href="#i-book"></use></svg>
+              <span>图鉴</span>
+            </button>
+          </div>
+          <div class="talent-tree-entry tutorial-entry">
+            <button id="tutorialBtn" class="action-btn talent-tree-open-btn tutorial-open-btn" type="button">
+              <svg class="icon"><use href="#i-help"></use></svg>
+              <span>教程</span>
+            </button>
+          </div>
+        </div>
+        <div class="skin-section">
+          <div class="skin-head">
+            <h3>机体涂装</h3>
+            <span>纯外观，不影响战斗属性</span>
+          </div>
+          <div class="skin-list" id="skinList"></div>
+        </div>
+        <button id="startBtn" class="action-btn start-btn" type="button">
+          <svg class="icon"><use href="#i-play"></use></svg>
+          <span>开始战斗</span>
+        </button>
+        <div class="daily-block">
+          <div class="daily-row">
+            <button id="dailyBtn" class="action-btn daily-btn" type="button">
+              <svg class="icon"><use href="#i-target"></use></svg>
+              <span>每日挑战</span>
+            </button>
+            <span id="dailyInfo" class="daily-info"></span>
+          </div>
+          <div id="dailyBadges" class="daily-badges" title="近 7 天每日挑战评级"></div>
+        </div>
+      </div>
+    </section>
+
+    <div id="battleSetupOverlay" class="overlay hidden" role="dialog" aria-modal="true">
+      <div class="overlay-panel battle-setup-panel">
+        <h2>准备挑战</h2>
+        <p class="battle-setup-sub">选择难度词缀，或跳过词缀直接开始标准挑战</p>
+        <div class="build-section battle-setup-build-section">
+          <div class="build-head">
+            <h3>开局流派</h3>
+            <span id="buildSummary">均衡弹道</span>
+          </div>
+          <div class="build-list" id="buildList"></div>
+        </div>
+        <div class="affix-section battle-setup-affixes">
+          <div class="affix-head">
+            <h3>难度词缀</h3>
+            <span id="affixSummary">点击可叠加，单词缀最高 3 层</span>
+            <button id="affixAllBtn" class="affix-all-btn" type="button">一键满词缀</button>
+          </div>
+          <div class="affix-list" id="affixList"></div>
+        </div>
+        <div class="battle-setup-actions">
+          <button id="battleSetupBackBtn" class="action-btn" type="button">返回主菜单</button>
+          <button id="battleSetupSkipBtn" class="action-btn" type="button">跳过词缀</button>
+          <button id="battleSetupStartBtn" class="action-btn start-btn" type="button">开始挑战</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="talentTreeOverlay" class="overlay hidden" role="dialog" aria-modal="true">
+      <div class="overlay-panel talent-tree-panel">
+        <div class="talent-tree-top">
+          <h2>天赋树</h2>
+          <div class="talent-tree-actions">
+            <button id="talentTreeResetBtn" class="action-btn tree-reset-btn" type="button" title="花费 30 奖励积分，返还全部已投入天赋点">
+              <svg class="icon"><use href="#i-refresh"></use></svg>
+              <span>重置天赋 · 30积分</span>
+            </button>
+            <button id="talentTreeCloseBtn" class="action-btn tree-close-btn" type="button">
+              <span>返回</span>
+            </button>
+          </div>
+        </div>
+        <div class="talent-tree-points">
+          <span>天赋点 <strong id="treePointsValue">0</strong></span>
+          <span>进度 <strong id="treeMaxValue">0/180</strong></span>
+        </div>
+        <div id="metaList" class="talent-tree-list"></div>
+      </div>
+    </div>
+
+    <div id="encyclopediaOverlay" class="overlay hidden" role="dialog" aria-modal="true">
+      <div class="overlay-panel encyclopedia-panel">
+        <div class="encyclopedia-top">
+          <h2>图鉴</h2>
+          <div class="encyclopedia-actions">
+            <button id="encyclopediaCloseBtn" class="action-btn tree-close-btn" type="button">
+              <span>返回</span>
+            </button>
+          </div>
+        </div>
+        <div class="encyclopedia-tools">
+          <div class="encyclopedia-search-row">
+            <input id="encyclopediaSearch" type="search" placeholder="搜索名称 / 描述 / 分类" autocomplete="off" />
+            <span id="encyclopediaCount" class="encyclopedia-count"></span>
+          </div>
+          <div id="encyclopediaTabs" class="encyclopedia-tabs"></div>
+        </div>
+        <div id="encyclopediaList" class="encyclopedia-list"></div>
+      </div>
+    </div>
+
+    <div id="tutorialOverlay" class="overlay hidden" role="dialog" aria-modal="true">
+      <div class="overlay-panel tutorial-panel">
+        <div class="encyclopedia-top">
+          <h2>游戏教程</h2>
+          <div class="encyclopedia-actions">
+            <button id="tutorialCloseBtn" class="action-btn tree-close-btn" type="button">
+              <span>返回</span>
+            </button>
+          </div>
+        </div>
+        <div class="tutorial-body">
+          <section class="tutorial-section">
+            <h3>操作方式</h3>
+            <ul>
+              <li>移动：<kbd>方向键</kbd> / <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd>，或按住鼠标 / 手指拖动战机；移动端可用左下角十字键。</li>
+              <li>炸弹：<kbd>F</kbd> —— 对全场造成范围伤害并清屏，附带短暂无敌（上限 3 枚）。</li>
+              <li>大招：<kbd>E</kbd> —— 能量蓄满后释放，瞬时回复 10% 生命，随后 15 秒每秒回复 1%，并短暂提升射速。</li>
+              <li>相位冲刺：<kbd>Q</kbd> —— 向移动方向突进并短暂无敌（需在局内解锁后出现）。</li>
+              <li>暂停：<kbd>P</kbd> / <kbd>Esc</kbd> 或右上角暂停按钮；切换窗口、切后台会自动暂停。</li>
+              <li>升级选择：数字键 <kbd>1</kbd> / <kbd>2</kbd> / <kbd>3</kbd> 直接选取当前弹窗的选项。</li>
+            </ul>
+          </section>
+
+          <section class="tutorial-section">
+            <h3>战斗流程</h3>
+            <ul>
+              <li>击落敌机获得经验，攒满经验条升级，每次升级在三个强化中三选一。</li>
+              <li>每 5 波出现一名 <strong>BOSS</strong>（首 BOSS 固定装甲要塞，第 10 波起蜂巢母舰 / 相位猎手等随机登场、不重复上一只），击落后可回收一件「BOSS 残骸」强化。</li>
+              <li>随机「特殊波」会追加陨石带、补给舰队或分裂母舰等事件，并伴随支线目标（完成后有额外奖励）。</li>
+              <li>战后可随时点右上角「结算」，按当前进度折算奖励积分返回主菜单。</li>
+            </ul>
+          </section>
+
+          <section class="tutorial-section">
+            <h3>开局流派</h3>
+            <ul>
+              <li><strong>均衡弹道</strong>：标准射速与伤害，每级基础伤害 +3%，最稳妥的入门选择。</li>
+              <li><strong>射速流</strong>：射速 +35%、伤害 -28%，每发附带目标最大生命百分比伤害，对高血量敌人强力。</li>
+              <li><strong>暴击流</strong>：射速略降，初始 20% 暴击，暴击伤害更高，且每击杀暴击伤害无上限叠加。</li>
+              <li><strong>无人机召唤流</strong>：开局自带浮游炮自动索敌，每击杀无人机火力无上限叠加。</li>
+              <li><strong>反击流</strong>：生命上限更高，受击必中但会把命中你的弹幕反弹给周围敌人，靠挨打输出。</li>
+            </ul>
+          </section>
+
+          <section class="tutorial-section">
+            <h3>核心质变</h3>
+            <ul>
+              <li>第 3 波会出现一次「核心质变」三选一，每局限选 1 个，大幅改变你的打法。</li>
+              <li>电弧（命中连锁闪电）/ 爆裂（击杀范围爆炸连锁）/ 弹射（子弹弹射多目标）/ 光束（主炮变贯穿激光）/ 分身（镜像复制火力）/ 超载（周期性变身爆发）。</li>
+              <li>核心质变与流派正交组合：流派定基调 → 核心定形态 → 普通升级与金色模组做加成，每一局都不同。</li>
+            </ul>
+          </section>
+
+          <section class="tutorial-section">
+            <h3>难度词缀</h3>
+            <ul>
+              <li>备战页可叠加词缀，单词缀最高 3 层，层数越高奖励倍率越高；「一键满词缀」可全部拉满。</li>
+              <li>重装集群（敌机血量↑）、弹幕风暴（敌弹更快更密）、急速突袭（敌机更快）、精英猎场（追加精英）、致命校准（伤害↑）、巨型弹幕（弹体更大）、修复干扰（回血削弱）、能源封锁（大招能量变慢）。</li>
+              <li>0 天赋 + 0 词缀是最低难度；满天赋 + 满词缀是挑战档，建议熟悉机制后再尝试。</li>
+            </ul>
+          </section>
+
+          <section class="tutorial-section">
+            <h3>天赋树</h3>
+            <ul>
+              <li>用「科技点」在四分支（火力 / 机动能量 / 生存 / 特殊）点亮天赋，每分支点满解锁里程碑效果。</li>
+              <li>「奖励积分」可用于解锁新机体涂装，或花费 30 积分重置天赋点。</li>
+              <li>涂装为纯外观，不影响战斗属性。</li>
+            </ul>
+          </section>
+
+          <section class="tutorial-section">
+            <h3>战斗技巧</h3>
+            <ul>
+              <li>画面里 <strong>橙黄色的是敌方弹幕（唯一威胁）</strong>，蓝色的是你的子弹——优先躲橙黄弹，走位优先于站桩输出。</li>
+              <li>BOSS 具有 100% 韧性：减速 / 眩晕 / 卡壳等控制对 BOSS 完全无效，只能靠走位与输出。</li>
+              <li>BOSS 进入狂暴后，每 5 秒会有约 1.8 秒的核心暴露窗口（琥珀色发光），此期间命中伤害 ×1.5，抓住窗口爆发。</li>
+              <li>血线告急时善用炸弹（清屏无敌）与大招（持续回血）保命，二者充能/冷却独立。</li>
+            </ul>
+          </section>
+
+          <section class="tutorial-section">
+            <h3>其它玩法</h3>
+            <ul>
+              <li><strong>每日挑战</strong>：主菜单进入，固定日期种子（人人同一局），按通关波次评 S/A/B/C 领奖励积分，每日一次。</li>
+              <li><strong>成就</strong>：图鉴「成就」分类，累计击杀/通关/核心使用等解锁，给长期目标。</li>
+              <li><strong>兑换码</strong>：图鉴「兑换码」分类输入兑换码兑换奖励，每个兑换码限用一次。</li>
+            </ul>
+          </section>
+
+          <section class="tutorial-section">
+            <h3>无尽深渊</h3>
+            <ul>
+              <li>第 50 波后进入无尽深渊，敌机每波逐步成长（生命与伤害递增），难度持续上升。</li>
+              <li>无尽中有检查点与「无尽契约」：契约附带增益与代价，按期望取舍；检查点后可选择继续或结算。</li>
+            </ul>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <section class="stage-slot">
+        <section class="stage" aria-label="星穹雷霆游戏区域">
+          <canvas id="game" width="960" height="640"></canvas>
+
+          <div id="gameHud" class="game-hud">
+            <div class="hud-left">
+              <div class="hud-time">
+                <span id="timeValue">00:00</span>
+                <span class="hud-fps" id="fpsValue" title="帧率">60</span>
+              </div>
+              <div class="hud-bars">
+                <div class="hud-row hp-stat">
+                  <svg class="icon hud-icon" aria-hidden="true"><use href="#i-heart"></use></svg>
+                  <div class="bar hp-bar" id="hpBar">
+                    <span id="hpFill"></span>
+                    <span id="shieldFrame" class="shield-frame"></span>
+                  </div>
+                  <strong id="hpValue">120/120</strong>
+                </div>
+                <div class="hud-row xp-stat">
+                  <span class="hud-label">等级 <strong id="levelValue">1</strong></span>
+                  <div class="bar"><span id="xpFill"></span></div>
+                  <strong id="xpValue">0/60</strong>
+                </div>
+              </div>
+              <div class="hud-stats">
+                <span class="hud-stat"><svg class="icon hud-icon"><use href="#i-crosshair"></use></svg><strong id="damageValue">12</strong></span>
+                <span class="hud-stat"><svg class="icon hud-icon"><use href="#i-star"></use></svg><strong id="critValue">0%</strong></span>
+                <span class="hud-stat"><svg class="icon hud-icon"><use href="#i-sparkles"></use></svg><strong id="critDamageValue">200%</strong></span>
+                <button id="statsBtn" class="stats-btn" type="button" aria-label="查看详细属性" title="查看详细属性">
+                  <svg class="icon"><use href="#i-layers"></use></svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="hud-right">
+              <div class="hud-stats">
+                <span>波次 <strong id="waveValue">1</strong></span>
+                <span>得分 <strong id="scoreValue">0</strong></span>
+                <span id="comboStat" class="combo-stat hidden" title="连击数">连击 <strong id="comboValue">0</strong></span>
+              </div>
+              <div class="hud-actions">
+                <button id="soundBtn" class="tool-btn hud-tool" type="button" aria-label="开关音效" title="开关音效">
+                  <svg class="icon"><use id="soundIcon" href="#i-volume"></use></svg>
+                </button>
+                <button id="pauseBtn" class="tool-btn hud-tool" type="button" aria-label="暂停" title="暂停">
+                  <svg class="icon"><use id="pauseIcon" href="#i-pause"></use></svg>
+                </button>
+                <button id="settleBtn" class="hud-settle-btn" type="button" aria-label="结算当前奖励积分并返回主界面" title="结算当前奖励积分并返回主界面">
+                  <svg class="icon"><use href="#i-check"></use></svg>
+                  <span>结算</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="hud-skills">
+              <button id="bombBtn" class="skill-btn" type="button" aria-label="使用炸弹 (F)" title="使用炸弹 (F)">
+                <svg class="icon ult-charge-svg" viewBox="0 0 24 24" aria-hidden="true">
+                  <defs>
+                    <clipPath id="bombChargeClip">
+                      <rect id="bombChargeRect" x="0" y="24" width="24" height="0" />
+                    </clipPath>
+                  </defs>
+                  <use class="ult-charge-bg" href="#i-bomb"></use>
+                  <use class="ult-charge-fg bomb-charge-fg" href="#i-bomb" clip-path="url(#bombChargeClip)"></use>
+                </svg>
+                <kbd class="skill-key">F</kbd>
+                <span class="skill-count" id="bombBtnCount">3</span>
+                <span class="bomb-cd-text" id="bombBtnCd"></span>
+              </button>
+              <button id="ultBtn" class="skill-btn ult-btn" type="button" aria-label="释放大招" title="释放大招：瞬时回复10%，随后15秒每秒回复1% (E)">
+                <svg class="icon ult-charge-svg" viewBox="0 0 24 24" aria-hidden="true">
+                  <defs>
+                    <clipPath id="ultChargeClip">
+                      <rect id="ultChargeRect" x="0" y="24" width="24" height="0" />
+                    </clipPath>
+                  </defs>
+                  <use class="ult-charge-bg" href="#i-zap"></use>
+                  <use class="ult-charge-fg" href="#i-zap" clip-path="url(#ultChargeClip)"></use>
+                </svg>
+                <kbd class="skill-key">E</kbd>
+                <span class="ult-pct" id="ultBtnPct">0%</span>
+              </button>
+              <button id="dashBtn" class="skill-btn dash-btn hidden" type="button" aria-label="相位冲刺" title="相位冲刺：向移动方向突进，短暂无敌 (Q)">
+                <svg class="icon ult-charge-svg" viewBox="0 0 24 24" aria-hidden="true">
+                  <defs>
+                    <clipPath id="dashChargeClip">
+                      <rect id="dashChargeRect" x="0" y="24" width="24" height="0" />
+                    </clipPath>
+                  </defs>
+                  <use class="ult-charge-bg" href="#i-wind"></use>
+                  <use class="ult-charge-fg dash-charge-fg" href="#i-wind" clip-path="url(#dashChargeClip)"></use>
+                </svg>
+                <kbd class="skill-key">Q</kbd>
+                <span class="skill-count" id="dashBtnCount"></span>
+              </button>
+            </div>
+            <div id="checkpointToast" class="checkpoint-toast hidden" role="status"></div>
+          </div>
+
+          <div id="objectivePanel" class="objective-panel hidden" aria-live="polite">
+            <span class="objective-panel-label">支线目标</span>
+            <strong id="objectivePanelName"></strong>
+            <span id="objectivePanelDesc"></span>
+          </div>
+
+          <div id="statsPanel" class="stats-panel hidden" role="dialog" aria-modal="true">
+            <div class="stats-panel-mask" data-stats-close></div>
+            <div class="stats-panel-box">
+              <div class="stats-panel-head">
+                <h3>详细属性</h3>
+                <button id="statsPanelClose" class="stats-panel-close" type="button" aria-label="关闭属性面板">×</button>
+              </div>
+              <div id="statsPanelList" class="stats-panel-list"></div>
+            </div>
+          </div>
+
+          <div id="bossWarning" class="boss-warning hidden">
+            <canvas id="bossWarningPreview" class="boss-warning-preview" width="56" height="56"></canvas>
+            <span id="bossWarningText">BOSS 即将降临</span>
+          </div>
+          <div id="bossBar" class="boss-bar hidden">
+            <span class="boss-label">首领</span>
+            <div class="boss-track"><span id="bossFill"></span></div>
+            <strong id="bossValue"></strong>
+          </div>
+          <div class="log" id="logList" aria-live="polite"></div>
+
+          <div id="levelUpOverlay" class="overlay hidden" role="dialog" aria-modal="true">
+            <div class="overlay-panel upgrade-panel">
+              <h2 id="levelUpTitle">等级提升</h2>
+              <div id="upgradeChoices" class="upgrade-choices"></div>
+            </div>
+          </div>
+
+          <div id="bossRewardOverlay" class="overlay hidden" role="dialog" aria-modal="true">
+            <div class="overlay-panel boss-reward-panel">
+              <div class="boss-reward-head">
+                <canvas id="bossRewardPreview" class="boss-reward-preview" width="72" height="72"></canvas>
+                <div class="boss-reward-head-main">
+                  <h2 id="bossRewardTitle">BOSS 残骸</h2>
+                  <p class="boss-reward-sub">回收一项残骸科技</p>
+                </div>
+              </div>
+              <div id="bossRewardChoices" class="boss-reward-choices"></div>
+            </div>
+          </div>
+
+          <div id="bossSelfSelectOverlay" class="overlay hidden" role="dialog" aria-modal="true">
+            <div class="overlay-panel upgrade-panel">
+              <h2>BOSS 自选强化</h2>
+              <p class="boss-self-select-sub">从当前可选的局内增益中选择 1 项，品质随机</p>
+              <div id="bossSelfSelectList" class="upgrade-choices"></div>
+            </div>
+          </div>
+
+          <div id="firstSeenOverlay" class="overlay hidden" role="dialog" aria-modal="true">
+            <div class="overlay-panel first-seen-panel">
+              <div class="first-seen-visual">
+                <canvas id="firstSeenPreview" class="first-seen-preview" width="120" height="120"></canvas>
+              </div>
+              <span id="firstSeenKicker" class="first-seen-kicker">首次遭遇</span>
+              <h2 id="firstSeenName"></h2>
+              <p id="firstSeenDesc"></p>
+              <div id="firstSeenStats" class="first-seen-stats"></div>
+              <button id="firstSeenContinue" class="action-btn start-btn" type="button">
+                <svg class="icon"><use href="#i-play"></use></svg>
+                <span>继续战斗</span>
+              </button>
+            </div>
+          </div>
+
+          <div id="overlay" class="overlay hidden" role="dialog" aria-modal="true">
+            <div class="overlay-panel">
+              <p class="overlay-kicker">对局结算 · RUN SUMMARY</p>
+              <h2 id="overlayTitle">本局结束</h2>
+              <div id="overlayStats" class="overlay-stats"></div>
+              <div id="overlayBonuses" class="overlay-bonuses"></div>
+              <div id="contractSection" class="contract-section hidden">
+                <h3>选择本段契约</h3>
+                <div id="contractList" class="contract-list"></div>
+              </div>
+              <div class="overlay-actions">
+                <button id="resumeBtn" class="action-btn hidden" type="button">
+                  <svg class="icon"><use href="#i-play"></use></svg>
+                  <span>继续</span>
+                </button>
+                <button id="victorySettleBtn" class="action-btn victory-action hidden" type="button">
+                  <svg class="icon"><use href="#i-check"></use></svg>
+                  <span>结算返回</span>
+                </button>
+                <button id="continueEndlessBtn" class="action-btn endless-action hidden" type="button">
+                  <svg class="icon"><use href="#i-sparkles"></use></svg>
+                  <span>继续无尽</span>
+                </button>
+                <button id="restartBtn" class="action-btn" type="button">
+                  <svg class="icon"><use href="#i-play"></use></svg>
+                  <span>重新开始</span>
+                </button>
+                <button id="menuBtn" class="action-btn hidden" type="button">
+                  <svg class="icon"><use href="#i-layers"></use></svg>
+                  <span>主菜单</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </section>
+
+    <footer class="controls">
+      <div class="dpad" aria-label="方向控制">
+        <button class="pad-btn up" data-dir="up" type="button" aria-label="向上移动" title="向上移动">
+          <svg class="icon"><use href="#i-up"></use></svg>
+        </button>
+        <button class="pad-btn left" data-dir="left" type="button" aria-label="向左移动" title="向左移动">
+          <svg class="icon"><use href="#i-left"></use></svg>
+        </button>
+        <button class="pad-btn right" data-dir="right" type="button" aria-label="向右移动" title="向右移动">
+          <svg class="icon"><use href="#i-right"></use></svg>
+        </button>
+        <button class="pad-btn down" data-dir="down" type="button" aria-label="向下移动" title="向下移动">
+          <svg class="icon"><use href="#i-down"></use></svg>
+        </button>
+      </div>
+    </footer>
+  </main>
+
+  <script src="game.js"></script>
+</body>
+</html>
