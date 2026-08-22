@@ -7982,7 +7982,12 @@
       fpsTimer = 0;
       if (els.fpsValue) els.fpsValue.textContent = displayFps;
     }
-    if (state && !state.over && !paused && !state.levelUpOpen && !state.firstSeenOpen) update(dt);
+    if (state && !state.over && !paused && !state.levelUpOpen && !state.firstSeenOpen) {
+      update(dt);
+    } else if (state && state.shake > 0) {
+      // 弹窗/暂停/结算期间世界冻结，但震屏继续衰减——避免升级/首次遭遇弹窗打开时画面持续抖动
+      state.shake = Math.max(0, state.shake - frameDt * 18);
+    }
     render();
     if (state && state.hudDirty && state.hudTimer >= HUD_UPDATE_INTERVAL) {
       updateHud();
